@@ -1,0 +1,27 @@
+{
+  "name": "InvolutionZKP",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SFYLL/InvolutionZKP.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SFYLL/InvolutionZKP/issues"
+  },
+  "homepage": "https://github.com/SFYLL/InvolutionZKP#readme",
+  "dependencies": {
+    "typescript": "^5.0.4",
+    "uninstall": "0.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.16.0"
+  }
+}
