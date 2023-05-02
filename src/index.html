@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zero-Knowledge Proof Example</title>
+    <link href="https://fonts.googleapis.com/css?family=Poppins:400,600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f0f0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            height: 100vh;
+            align-items: center;
+            justify-items: center;
+            gap: 2rem;
+            margin: 0;
+        }
+
+        h1 {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 2rem;
+        }
+
+        .client-side, .server-side {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 80%;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .custom-button {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            border-radius: 0.25rem;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            margin-top: 1rem;
+        }
+
+        .custom-button:hover {
+            background-color: #45a049;
+        }
+
+        #imageCanvas {
+            max-width: 100%;
+            max-height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <div class="client-side">
+        <h1>Client Side</h1>
+        <label for="inputImage" class="custom-button">Choose Image</label>
+        <input type="file" id="inputImage" accept="image/png">
+        <button id="flipImage" class="custom-button">Flip Image</button>
+    </div>
+    <div class="server-side">
+        <h1>Server Side</h1>
+        <canvas id="imageCanvas"></canvas>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>
