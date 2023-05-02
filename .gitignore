@@ -3,3 +3,5 @@ env/
 node_modules/
 sandbox
 **/.DS_STORE
+build/
+zkFiles/
