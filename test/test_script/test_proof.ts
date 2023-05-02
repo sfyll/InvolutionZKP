@@ -7,19 +7,6 @@ import { getRootProjectDirectory } from "../../src/lib/utils"
 import { assert } from 'console';
 import { NdArray } from 'ndarray';
 
-
-function saveJSON(filename: string, jsonContent: object) {
-    const blob = new Blob([JSON.stringify(jsonContent)], { type: "application/json;charset=utf-8;" });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute("download", filename);
-    link.style.display = "none";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-}
-
 export function generateImageData(fileExtension: string = "/50_50_image_data_real.json") : PngHandler {
     const baseDirectory = getRootProjectDirectory();
     const originalMetadata = JSON.parse(readFileSync(baseDirectory + "/test" + fileExtension, { encoding: 'utf8' }));
@@ -53,8 +40,8 @@ export function generateAndSavePictures(result: { result: boolean; unpaddedProof
     const png = imageData.convertToPng(result.reversedMatrixTest);
     const baseDirectory = getRootProjectDirectory();
 
-    const outputPath = baseDirectory + "/test/test_script/reversed_image.png";
-    const outputPathReal = baseDirectory + "/test/test_script/reversed_image_correct.png";
+    const outputPath = baseDirectory + "/test/test_script/reversed_image_via_circom.png";
+    const outputPathReal = baseDirectory + "/test/test_script/reversed_image_via_typescript.png";
     imageData.writePngToFile(png_test, outputPath);
     imageData.writePngToFile(png, outputPathReal);
 }
