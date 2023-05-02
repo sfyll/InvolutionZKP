@@ -4,6 +4,8 @@ import { PNG } from 'pngjs';
 import ndarray, { NdArray } from 'ndarray';
 import assert from 'assert';
 
+import { getRootProjectDirectory } from "./utils"
+
 export class PngHandler {
     rows: number;
     columns: number;
@@ -76,13 +78,11 @@ export class PngHandler {
         for (let y = 0; y < this.desiredRowsLength; y++) {
             if (y < this.rows) {
                 if (columnPadding.length > 0) {
-                    console.log("NO", columnPadding)
                     array2D[y] = array2D[y].concat(columnPadding);
                 }
             }
             else {
                 if (emptyRowColumnsPadding.length > 0) {
-                    console.log("NO")
                     array2D.push(emptyRowColumnsPadding);
                 }
             }
@@ -119,9 +119,6 @@ export class PngHandler {
         const unpaddedProofOutput = this.unpadMatrix(matrixProofOutput).flat();
         const reversedMatrixTest = this.reverseMatrix(this.getMatrixOfPixelsFromNumberArray(this.pixels.flat().flat()));
     
-        console.log("unpaddedProofOutput: ", unpaddedProofOutput.slice());
-        console.log("reversedMatrixTest: ", reversedMatrixTest);
-    
         if (unpaddedProofOutput.length !== reversedMatrixTest.shape[0] * reversedMatrixTest.shape[1] * reversedMatrixTest.shape[2]) {
             return { result: false, 
                 unpaddedProofOutput: [], 
@@ -129,8 +126,7 @@ export class PngHandler {
                 errorMsg: `Matrices have different dimensions: ${unpaddedProofOutput.length} and ${reversedMatrixTest.shape[0] * reversedMatrixTest.shape[1]}` };
         }
 
-        console.log("reversedMatrixTest: ", reversedMatrixTest.get(0,0,0));
-    
+
         // Check if the elements of both matrices are equal
         for (let i = 0; i < this.rows; i++) {
             for (let j = 0; j < this.columns; j++) {
@@ -221,11 +217,9 @@ export class PngHandler {
 }
 
 function main() {
-    const currentPath = dirname(__filename);
-    const parentPath = dirname(currentPath);
-    const parentOfParentPath = dirname(parentPath);
+    const baseDirectory = getRootProjectDirectory()
 
-    const originalMetadata = JSON.parse(readFileSync(parentOfParentPath + "/test/50_50_image_data_real.json", { encoding: 'utf8' }));
+    const originalMetadata = JSON.parse(readFileSync(baseDirectory + "/test/50_50_image_data_real.json", { encoding: 'utf8' }));
 
     const imageData = new PngHandler(
         originalMetadata["rows"],
@@ -255,10 +249,10 @@ function main() {
     const pngOriginal = imageData.convertToPng(originalImage);
 
     
-    const outputPath = parentOfParentPath + "/test/test_script/reversed_image.png";
-    const outputPathOriginal = parentOfParentPath + "/test/test_script/original_image.png";
+    const outputPath = baseDirectory + "/test/test_script/reversed_image.png";
+    const outputPathOriginal = baseDirectory + "/test/test_script/original_image.png";
     imageData.writePngToFile(png, outputPath);
     imageData.writePngToFile(pngOriginal, outputPathOriginal);
 }
 
-main();
+// main();

@@ -1,13 +1,20 @@
 
-import { dirname } from 'path';
+import { dirname, resolve } from 'path';
 
-export const getRootProjectDirectory = () => {
-    const currentPath = dirname(__filename);
-    const parentPath = dirname(currentPath);
-    const baseDirectory = dirname(parentPath);
-    return baseDirectory;
+export function getRootProjectDirectory(): string {
+  // Check if the current file is in the build directory.
+  const isInBuildDirectory = __dirname.includes('build');
+  const currentPath = dirname(__filename);
+  const parentPath = dirname(currentPath);
+  const baseDirectory = dirname(parentPath);
+
+  // If the current file is in the build directory, go one level up.
+  if (isInBuildDirectory) {
+    return resolve(dirname(parentPath), '..');
+  }
+
+  return baseDirectory;
 }
-
 export const getVerificationKey = async () => {
     return await fetch(getRootProjectDirectory()+"/circuits/zkFiles/verification_key.json").then(function(res) {
       return res.json();
