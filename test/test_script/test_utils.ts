@@ -7,7 +7,7 @@ import { getRootProjectDirectory } from "../../src/lib/utils"
 import { assert } from 'console';
 import { NdArray } from 'ndarray';
 
-export function generateImageData(fileExtension: string = "/50_50_image_data_real.json") : PngHandler {
+export function generateImageData(fileExtension: string, desiredRowsLength: number, desiredColumnsLength: number = 200) : PngHandler {
     const baseDirectory = getRootProjectDirectory();
     const originalMetadata = JSON.parse(readFileSync(baseDirectory + "/test" + fileExtension, { encoding: 'utf8' }));
 
@@ -15,8 +15,8 @@ export function generateImageData(fileExtension: string = "/50_50_image_data_rea
         originalMetadata["rows"],
         originalMetadata["columns"],
         originalMetadata["pixels"],
-        50,
-        200
+        desiredRowsLength,
+        desiredColumnsLength
     );
 
     return imageData
@@ -46,11 +46,11 @@ export function generateAndSavePictures(result: { result: boolean; unpaddedProof
     imageData.writePngToFile(png, outputPathReal);
 }
 
-async function main() {
+async function tester(fileExtension: string = "/50_50_image_base_test.json",  desiredRowsLength: number = 50, desiredColumnsLength: number = 200) {
 
         const baseDirectory = getRootProjectDirectory();
 
-        const imageData = generateImageData();
+        const imageData = generateImageData(fileExtension, desiredRowsLength, desiredColumnsLength);
 
         const matrixInputs: string[] =  imageData.convertToProofTest();
         
@@ -86,5 +86,3 @@ async function main() {
             process.exit(1);
         }
 }
-
-main();
