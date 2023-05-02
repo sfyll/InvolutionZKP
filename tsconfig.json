@@ -4,5 +4,7 @@
       "module": "CommonJS",
       "strict": true,
       "lib": ["DOM", "ES2015"],
+      "esModuleInterop": true,
+      "outDir": "build"
     }
 }
