@@ -3,7 +3,8 @@ import { readFileSync } from 'fs';
 
 const { groth16 } = require("snarkjs")
 
-import { PngHandler, prettyPrintArray } from "../../src/png_handling/png_handler"
+import { PngHandler } from "../../src/lib/png_handler"
+import { assert } from 'console';
 
 function saveJSON(filename: string, jsonContent: object) {
     const blob = new Blob([JSON.stringify(jsonContent)], { type: "application/json;charset=utf-8;" });
@@ -21,21 +22,19 @@ async function main() {
         const currentPath = dirname(__filename);
         const parentPath = dirname(currentPath);
         const baseDirectory = dirname(parentPath);
-        const originalMetadata = JSON.parse(readFileSync(parentPath + "/50_50_image_metadata.json", { encoding: 'utf8' }));
+        const originalMetadata = JSON.parse(readFileSync(parentPath + "/50_50_image_data_real.json", { encoding: 'utf8' }));
 
         const imageData = new PngHandler(
             originalMetadata["rows"],
             originalMetadata["columns"],
-            originalMetadata["pixels"]
+            originalMetadata["pixels"],
+            50,
+            200
         );
 
-        
-        const matrixFormat: string[][] =  imageData.convertToProofTest(5, 50);
-        console.log(matrixFormat)
-        const rows: number = matrixFormat.length;
-        const columns: number = matrixFormat[0].length;
-
-        const matrixInputs: string[] = matrixFormat.flat();
+        const matrixInputs: string[] =  imageData.convertToProofTest();
+        const rows: number = imageData.rows;
+        const columns: number = imageData.pixelsPerRow;
         
         console.log(matrixInputs);
         console.log(imageData.rows, rows);
@@ -46,7 +45,6 @@ async function main() {
                             columns: columns,
                             image: matrixInputs }
 
-        console.log("HERE");
 
         try {
             const { proof, publicSignals } = await groth16.fullProve(
@@ -54,14 +52,43 @@ async function main() {
                 baseDirectory + "/circuits/build/involution_js/involution.wasm",
                 baseDirectory + "/circuits/zkFiles/involution_final.zkey"
             );
-            const columns_output = publicSignals[-1];
-            const rows_output = publicSignals[-2];
+            const columns_output = publicSignals[publicSignals.length - 1];
+            const rows_output = publicSignals[publicSignals.length - 2];
             const matrix_output = publicSignals.slice(0, publicSignals.length - 2);
-            console.log(imageData.verifyProotTestOutput(matrixInputs, matrix_output));
-            return;
+            
+            //test
+            const result = imageData.checkCircomOutput(matrixInputs, matrix_output, rows_output, columns_output);
+
+            assert(result.result == true, result.errorMsg);
+            
+            //get png for proof output
+            const pixelisedProof = imageData.getMatrixOfPixelsFromNumberArray(result.unpaddedProofOutput);
+            const png_test = imageData.convertToPng(pixelisedProof);
+            
+            const png = imageData.convertToPng(result.reversedMatrixTest);
+            const currentPath = dirname(__filename);
+            const parentPath = dirname(currentPath);
+            const parentOfParentPath = dirname(parentPath);
+    
+            const outputPath = parentOfParentPath + "/test/test_script/reversed_image.png";
+            const outputPathReal = parentOfParentPath + "/test/test_script/reversed_image_correct.png";
+            imageData.writePngToFile(png_test, outputPath);
+            imageData.writePngToFile(png, outputPathReal);
+
+
+            //verification
+            const vkey = JSON.parse(readFileSync(baseDirectory+"/circuits/zkFiles/verification_key.json", { encoding: 'utf8' }))
+            console.log(vkey);
+            const res = await groth16.verify(vkey, publicSignals, proof);
+
+            console.log("Verification status:", res);
         } catch (error) {
             console.error('Error during proof generation:', error);
         }
+
+
+    return;
+
 }
 
 main();
