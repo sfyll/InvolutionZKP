@@ -7,7 +7,7 @@ import {
            consoleErrorDisable,
            consoleErrorEnable} from "../../src/lib/utils"
 
-  const { groth16 } = require("snarkjs") ;
+  const { groth16 } = require("snarkjs")
 
   import { readFileSync } from 'fs';
   
@@ -63,16 +63,16 @@ import {
       }
     }
   
-    // test('Failure due to wrong inputs (rows > desiredRowsLength)', async () => {
-    //     const fileExtension = '/50_50_image_base_test.json';
-    //     const desiredRowsLength = 51;
-    //     //remove consol error as they are expected
-    //     const originalConsolError = consoleErrorDisable();
-    //     const { error, result } = await runTest(fileExtension, desiredRowsLength);
-    //     consoleErrorEnable(originalConsolError);
-    //     expect(result).toBe(false);
-    //     expect(error).toBe('Error: Too many signals set. ');
-    //   });
+    test('Failure due to wrong inputs (rows > desiredRowsLength)', async () => {
+        const fileExtension = '/50_50_image_base_test.json';
+        const desiredRowsLength = 51;
+        //remove consol error as they are expected
+        const originalConsolError = consoleErrorDisable();
+        const { error, result } = await runTest(fileExtension, desiredRowsLength);
+        consoleErrorEnable(originalConsolError);
+        expect(result).toBe(false);
+        expect(error).toBe('Error: Too many signals set. ');
+      });
       
       test('Failure due to wrong inputs (columns > desiredColumnsLength)', async () => {
         const fileExtension = '/50_50_image_base_test.json';
@@ -89,6 +89,7 @@ import {
         expect(result).toBe(false);
         expect(error).toBe('Error: Too many signals set. ');
     });
+
     test('Failure when an element is not 0 in the right-padded part of the matrix, as it is a violation of the given dimensions', async () => {
       const fileExtension = '/small_image_metadata.json'; 
       let { witness, baseDirectory, imageData } = await testSetup(fileExtension, 50, 200);
@@ -110,11 +111,12 @@ import {
         }
     });
   
-    // test('Proof success when fetching another JSON', async () => {
-    //   const fileExtension = '/50_50_image_base_test.json';
-    //   const desiredRowsLength = 50;
-    //   const desiredColumnsLength = 200;
-    //   const res = await runTest(fileExtension, desiredRowsLength, desiredColumnsLength);
-    //   expect(res).toBe(true);
-    // });
+    test('Proof success when fetching another JSON', async () => {
+      const fileExtension = '/50_50_image_base_test.json';
+      const desiredRowsLength = 50;
+      const desiredColumnsLength = 200;
+      const res = await runTest(fileExtension, desiredRowsLength, desiredColumnsLength);
+      expect(res.error).toBe(null);
+      expect(res.result).toBe(true);
+    });
   });
