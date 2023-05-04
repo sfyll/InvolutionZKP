@@ -1,11 +1,29 @@
-import { readFileSync, createWriteStream } from 'fs';
-import { dirname } from 'path';
+// import {  createWriteStream } from 'fs';
 import { PNG } from 'pngjs';
 import ndarray, { NdArray } from 'ndarray';
 import assert from 'assert';
 
-import { getRootProjectDirectory } from "./utils"
+export function createPngHandlerFromImageData(imageData: ImageData): PngHandler {
+    const rows = imageData.height;
+    const columns = imageData.width;
+    const pixels: number[][] = [];
+  
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < columns; x++) {
+        const index = (y * columns + x) * 4;
+        const r = imageData.data[index];
+        const g = imageData.data[index + 1];
+        const b = imageData.data[index + 2];
+        const a = imageData.data[index + 3];
+        pixels.push([r, g, b, a]);
+      }
+    }
+    console.log("Created");
+    return new PngHandler(rows, columns, pixels);
 
+
+}
+  
 export class PngHandler {
     rows: number;
     columns: number;
@@ -15,7 +33,7 @@ export class PngHandler {
     desiredColumnsLength: number;
 
     //desired rows and columns length for padding given array length in circom must be known at compile time!
-    constructor(rows: number, columns: number, pixels: number[][], desiredRowsLength: number = 50, desiredColumnsLength: number = 50) {
+    constructor(rows: number, columns: number, pixels: number[][], desiredRowsLength: number = 50, desiredColumnsLength: number = 200) {
         this.rows = rows;
         //each column is comprised of four pixels !
         this.columns = columns;
@@ -206,53 +224,12 @@ export class PngHandler {
         return png;
     }
 
-    writePngToFile(png: PNG, outputPath: string): Promise<void> {
-        return new Promise((resolve, reject) => {
-            const stream = createWriteStream(outputPath);
-            png.pack().pipe(stream);
-            stream.on('finish', resolve);
-            stream.on('error', reject);
-        });
-    }
+    // writePngToFile(png: PNG, outputPath: string): Promise<void> {
+    //     return new Promise((resolve, reject) => {
+    //         const stream = createWriteStream(outputPath);
+    //         png.pack().pipe(stream);
+    //         stream.on('finish', resolve);
+    //         stream.on('error', reject);
+    //     });
+    // }
 }
-
-function main() {
-    const baseDirectory = getRootProjectDirectory()
-
-    const originalMetadata = JSON.parse(readFileSync(baseDirectory + "/test/50_50_image_data_real.json", { encoding: 'utf8' }));
-
-    const imageData = new PngHandler(
-        originalMetadata["rows"],
-        originalMetadata["columns"],
-        originalMetadata["pixels"],
-        originalMetadata["rows"],
-        originalMetadata["columns"],
-    );
-
-    const reversedImage = imageData.reverseMatrix(imageData.getMatrixOfPixelsFromNumberArray(imageData.pixels.flat().flat()));
-
-    const originalImage = imageData.reverseMatrix(reversedImage);
-
-    console.log(reversedImage)
-    console.log(originalImage)
-
-    for (let i = 0; i < originalImage.shape[0]; i++) {
-        for (let j = 0; j < originalImage.shape[1]; j++) {
-            for (let k = 0; k < originalImage.shape[2]; k++) {
-                assert(reversedImage.get(reversedImage.shape[0] - i - 1, j, k) === originalImage.get(i, j, k), `$reversedImage.get(${i}, ${j}, ${k}) === $originalImage.get(${i}, ${j}, ${k})`)
-            }
-        }
-    }
-
-
-    const png = imageData.convertToPng(reversedImage);
-    const pngOriginal = imageData.convertToPng(originalImage);
-
-    
-    const outputPath = baseDirectory + "/test/test_script/reversed_image.png";
-    const outputPathOriginal = baseDirectory + "/test/test_script/original_image.png";
-    imageData.writePngToFile(png, outputPath);
-    imageData.writePngToFile(pngOriginal, outputPathOriginal);
-}
-
-// main();

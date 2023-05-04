@@ -30,8 +30,8 @@ export const consoleErrorEnable = (originalConsoleError: (...data: any[]) => voi
   console.error = originalConsoleError;
 };
 
-export const getVerificationKey = async () => {
-    return await fetch(getRootProjectDirectory()+"/circuits/zkFiles/verification_key.json").then(function(res) {
+export const getVerificationKey = async (directory_extension: string = "build/src/public/") => {
+    return await fetch(getRootProjectDirectory()+directory_extension+"verification_key.json").then(function(res) {
       return res.json();
     });
   }
