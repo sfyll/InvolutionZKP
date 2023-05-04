@@ -43,9 +43,6 @@ template VerifyImageBounds(rowsMax, columnsMax) {
     
     for (var i = rows; i < rowsMax; i++) {
         for (var j = columns ; j < columnsMax; j++) {
-            log("row i", i);
-            log("column j", j);
-            log("image", image[i][j]);
             intermediary_sum += image[i][j];
         }
     }
