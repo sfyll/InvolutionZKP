@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,11 +16,10 @@
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #f0f0f0;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            height: 100vh;
+            display: flex;
+            justify-content: center;
             align-items: center;
-            justify-items: center;
+            height: 100vh;
             gap: 2rem;
             margin: 0;
         }
@@ -30,13 +30,14 @@
             font-size: 2rem;
         }
 
-        .client-side, .server-side {
+        .client-side,
+        .server-side {
             background-color: white;
             padding: 2rem;
             border-radius: 0.5rem;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             text-align: center;
-            width: 80%;
+            flex: 0 0 40%;
         }
 
         input[type="file"] {
@@ -64,14 +65,101 @@
             max-width: 100%;
             max-height: 400px;
         }
+
+        #proofOutput {
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 0.25rem;
+            padding: 0.5rem;
+            font-weight: 600;
+            font-size: 0.8rem;
+            width: 100%;
+            height: 100px;
+            overflow: auto;
+            margin-top: 1rem;
+        }
+
+        #verificationResult {
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 0.25rem;
+            padding: 0.5rem;
+            font-weight: 600;
+            width: 60%;
+            margin: 1rem auto 0;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            }
+
+            .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            }
+
+            .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            }
+
+            .close:hover,
+            .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+            }
+
+            .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            color: #fff;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 0.25rem;
+            }
+
+            .btn-primary:hover {
+            background-color: #0069d9;
+            border-color: #0062cc;
+            }
     </style>
 </head>
+
 <body>
     <div class="client-side">
         <h1>Client Side</h1>
+        <div id="warningModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <p>
+            Circuits are hungry animals. For the sake of your machine, we've bounded the size of handled JPEGs. You can choose any JPEGS of at most 50 by 50 from <a href="https://icons8.com/icons/set/50x50-pixels" target="_blank" rel="noopener noreferrer"><strong>here</strong></a>. If you're curious about what it takes to run large circuits, read <a href="https://hackmd.io/V-7Aal05Tiy-ozmzTGBYPA?view" target="_blank" rel="noopener noreferrer"><strong>this</strong></a>.
+            </p>
+        <button id="okButton" class="btn btn-primary">OK</button>
+        </div>
+        </div>
         <label for="inputImage" class="custom-button">Choose Image</label>
         <input type="file" id="inputImage" accept="image/png">
-        <button id="flipImage" class="custom-button">Flip Image</button>
+        <button id="flipButton" class="custom-button">Flip Image</button>
+        <textarea id="proofOutput"></textarea>
+        <button id="copyProof" class="custom-button">Copy Proof & Public Inputs</button>
+        <button id="verifyProof" class="custom-button">Verify</button>
+        <textarea id="verificationResult"></textarea>
     </div>
     <div class="server-side">
         <h1>Server Side</h1>
@@ -79,4 +167,5 @@
     </div>
     <script src="main.js"></script>
 </body>
+
 </html>
