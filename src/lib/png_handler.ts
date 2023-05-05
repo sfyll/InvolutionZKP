@@ -1,4 +1,4 @@
-// import {  createWriteStream } from 'fs';
+import {  createWriteStream } from 'fs';
 import { PNG } from 'pngjs';
 import ndarray, { NdArray } from 'ndarray';
 import assert from 'assert';
@@ -224,12 +224,12 @@ export class PngHandler {
         return png;
     }
 
-    // writePngToFile(png: PNG, outputPath: string): Promise<void> {
-    //     return new Promise((resolve, reject) => {
-    //         const stream = createWriteStream(outputPath);
-    //         png.pack().pipe(stream);
-    //         stream.on('finish', resolve);
-    //         stream.on('error', reject);
-    //     });
-    // }
+    writePngToFile(png: PNG, outputPath: string): Promise<void> {
+        return new Promise((resolve, reject) => {
+            const stream = createWriteStream(outputPath);
+            png.pack().pipe(stream);
+            stream.on('finish', resolve);
+            stream.on('error', reject);
+        });
+    }
 }
