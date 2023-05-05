@@ -17,13 +17,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const warningModal = document.getElementById("warningModal") as HTMLElement;
     warningModal.style.display = "block";
 
-
     const inputImage = document.getElementById("inputImage") as HTMLInputElement;
     const closeModal = document.querySelector(".close") as HTMLElement;
     const okButton = document.getElementById("okButton") as HTMLButtonElement;
     const openFilePicker = new Event("openFilePicker");
 
-    const flipButton = document.getElementById("flipButton") as HTMLButtonElement;
+    const flipButtonHandler = document.getElementById("flipButton") as HTMLButtonElement;
     const canvas = document.getElementById("imageCanvas") as HTMLCanvasElement;
     const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
 
@@ -71,14 +70,15 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         });
   
-    flipButton.addEventListener("click", async () => {
-        console.log("FLIPPING")
+    flipButtonHandler.addEventListener("click", async (e)  => {
+        e.stopImmediatePropagation()
         if (img) {        
-            await flipImage();
+            flipImage();
+            await populateProofHandler();
+
     }});
 
-    copyProofButton.addEventListener("click", () => {
-        console.log("COPYING")
+    copyProofButton.addEventListener("click", (e) => {
         if (proofHandler.proof && proofHandler.publicSignals && proofHandler.verification) {
           const proofJsonString = JSON.stringify(proofHandler.proof);
           const publicInputsJsonString = JSON.stringify(proofHandler.publicSignals);
@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
 
-    verifyProofButton.addEventListener("click", () => {
+    verifyProofButton.addEventListener("click", (e) => {
     if (proofHandler.proof && proofHandler.publicSignals && proofHandler.verification) {
         const currentImageHash = generateImageHash(ctx.getImageData(0, 0, img.width, img.height));
         if (currentImageHash === proofHandler.imageHash) {
@@ -118,27 +118,27 @@ document.addEventListener("DOMContentLoaded", () => {
         ctx?.drawImage(img, 0, 0);
     }
 
-    async function flipImage() {
-        console.log("INSIDE FLIP IMAGE")
+    function flipImage() {
         if (ctx) {
             canvas.style.transform = isFlipped ? '' : 'rotate(180deg)';
             isFlipped = !isFlipped;
-    
-            if (png_handler) {
-                const result = await calculateProof(png_handler);
-    
-                proofHandler.proof = result.proof;
-                proofHandler.publicSignals = result.publicSignals;
-                proofHandler.verification = result.verification;
-                proofHandler.imageHash = generateImageHash(ctx.getImageData(0, 0, img.width, img.height)); 
-                displayProof();
-            }
+        }
+    }
+
+    async function populateProofHandler() {
+        if (png_handler) {
+            const result = await calculateProof(png_handler);
+
+            proofHandler.proof = result.proof;
+            proofHandler.publicSignals = result.publicSignals;
+            proofHandler.verification = result.verification;
+            proofHandler.imageHash = generateImageHash(ctx.getImageData(0, 0, img.width, img.height)); 
+            displayProof();
         }
     }
 
     function displayProof() {
         if (proofHandler.proof && proofHandler.publicSignals && proofHandler.verification) {
-            console.log("AFTER", proofHandler.proof)
             const proofJsonString = JSON.stringify(proofHandler.proof);
             proofOutputElement.textContent = proofJsonString;
             }

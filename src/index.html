@@ -107,6 +107,9 @@
             padding: 20px;
             border: 1px solid #888;
             width: 80%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             }
 
             .close {
@@ -144,15 +147,6 @@
 <body>
     <div class="client-side">
         <h1>Client Side</h1>
-        <div id="warningModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <p>
-            Circuits are hungry animals. For the sake of your machine, we've bounded the size of handled JPEGs. You can choose any JPEGS of at most 50 by 50 from <a href="https://icons8.com/icons/set/50x50-pixels" target="_blank" rel="noopener noreferrer"><strong>here</strong></a>. If you're curious about what it takes to run large circuits, read <a href="https://hackmd.io/V-7Aal05Tiy-ozmzTGBYPA?view" target="_blank" rel="noopener noreferrer"><strong>this</strong></a>.
-            </p>
-        <button id="okButton" class="btn btn-primary">OK</button>
-        </div>
-        </div>
         <label for="inputImage" class="custom-button">Choose Image</label>
         <input type="file" id="inputImage" accept="image/png">
         <button id="flipButton" class="custom-button">Flip Image</button>
@@ -164,6 +158,15 @@
     <div class="server-side">
         <h1>Server Side</h1>
         <canvas id="imageCanvas"></canvas>
+    </div>
+    <div id="warningModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <p>
+            Circuits are hungry animals. For the sake of your machine, we've bounded the size of handled JPEGs. You can choose any JPEGS of at most 50 by 50 from <a href="https://icons8.com/icons/set/50x50-pixels" target="_blank" rel="noopener noreferrer"><strong>here</strong></a>. If you're curious about what it takes to run large circuits, read <a href="https://hackmd.io/V-7Aal05Tiy-ozmzTGBYPA?view" target="_blank" rel="noopener noreferrer"><strong>this</strong></a>.
+            </p>
+        <button id="okButton" class="btn btn-primary">OK</button>
+    </div>
     </div>
     <script src="main.js"></script>
 </body>
