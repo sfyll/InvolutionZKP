@@ -1,44 +1,105 @@
-import { PngHandler, createPngHandlerFromImageData } from "./lib/png_handler"
+import { createPngHandlerFromImageData } from "./lib/png_handler"
 import { calculateProof } from "./lib/zk_handler"
+import { createHash } from "crypto";
 
-let proofData: any;
-let verificationResult: boolean;
+let proofHandler = {
+    proof : null,
+    publicSignals: {},
+    verification: false,
+    imageHash: ""
+}
+
 let png_handler: any;
+let isFlipped = false;
+
 
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("LOADING")
-    console.log("Current URL: ", window.location.href);
+    const warningModal = document.getElementById("warningModal") as HTMLElement;
+    warningModal.style.display = "block";
+
+
     const inputImage = document.getElementById("inputImage") as HTMLInputElement;
-    const flipButton = document.getElementById("flipImage") as HTMLButtonElement;
+    const closeModal = document.querySelector(".close") as HTMLElement;
+    const okButton = document.getElementById("okButton") as HTMLButtonElement;
+    const openFilePicker = new Event("openFilePicker");
+
+    const flipButton = document.getElementById("flipButton") as HTMLButtonElement;
     const canvas = document.getElementById("imageCanvas") as HTMLCanvasElement;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+
+    const copyProofButton = document.getElementById("copyProof") as HTMLButtonElement;
+    const proofOutputElement = document.getElementById("proofOutput") as HTMLTextAreaElement;
+
+    const verifyProofButton = document.getElementById("verifyProof") as HTMLButtonElement;
+    const verificationResult = document.getElementById("verificationResult") as HTMLTextAreaElement;
   
     let img: HTMLImageElement;
-    let flipped = false;
-  
-    inputImage.addEventListener("change", async (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-  
-      if (file && file.type === "image/png") {
-        img = await loadImage(file);
-        drawImage(img);
-  
-        if (ctx) {
-          const imageData = ctx.getImageData(0, 0, img.width, img.height);
-          png_handler = createPngHandlerFromImageData(imageData);
+
+    closeModal.addEventListener("click", () => {
+        warningModal.style.display = "none";
+    });
+    
+    window.addEventListener("click", (event) => {
+        if (event.target === warningModal) {
+            warningModal.style.display = "none";
         }
-      }
     });
   
-    flipButton.addEventListener("click", async () => {
-        if (img) {
-            await flipImage();
-        if (png_handler) {
-            const result = await calculateProof(png_handler);
-            proofData = result.proof;
-            verificationResult = result.verification;
+    okButton.addEventListener("click", () => {
+        warningModal.style.display = "none";
+        inputImage.dispatchEvent(openFilePicker); 
+    });
+
+
+    inputImage.addEventListener("change", async (e) => {
+        const file = (e.target as HTMLInputElement).files?.[0];
+
+        if (file && file.type === "image/png") {
+            img = await loadImage(file);
+            drawImage(img);
+
+            if (ctx) {
+                const imageData = ctx.getImageData(0, 0, img.width, img.height);
+                png_handler = createPngHandlerFromImageData(imageData);
+            }
+
+            // Reset the transformation matrix for the new image
+            if (isFlipped) {
+                canvas.style.transform = '';
+                isFlipped = false;
             }
         }
+        });
+  
+    flipButton.addEventListener("click", async () => {
+        console.log("FLIPPING")
+        if (img) {        
+            await flipImage();
+    }});
+
+    copyProofButton.addEventListener("click", () => {
+        console.log("COPYING")
+        if (proofHandler.proof && proofHandler.publicSignals && proofHandler.verification) {
+          const proofJsonString = JSON.stringify(proofHandler.proof);
+          const publicInputsJsonString = JSON.stringify(proofHandler.publicSignals);
+          proofOutputElement.value = `Proof:\n${proofJsonString}\n\nPublic Inputs:\n${publicInputsJsonString}`;
+    
+          proofOutputElement.select();
+          document.execCommand("copy");
+        }
+      });
+
+    verifyProofButton.addEventListener("click", () => {
+    if (proofHandler.proof && proofHandler.publicSignals && proofHandler.verification) {
+        const currentImageHash = generateImageHash(ctx.getImageData(0, 0, img.width, img.height));
+        if (currentImageHash === proofHandler.imageHash) {
+            verificationResult.textContent = `Proof validation result is: ${proofHandler.verification}`
+        } else {
+        verificationResult.textContent = "Error: The image has been changed. Please regenerate the proof.";
+        }
+    } else {
+        verificationResult.textContent = "Error: No proof available for verification.";
+    }
     });
   
 
@@ -57,21 +118,38 @@ document.addEventListener("DOMContentLoaded", () => {
         ctx?.drawImage(img, 0, 0);
     }
 
-    function flipImage() {
+    async function flipImage() {
+        console.log("INSIDE FLIP IMAGE")
         if (ctx) {
-            canvas.style.transform = 'rotate(180deg)';
+            canvas.style.transform = isFlipped ? '' : 'rotate(180deg)';
+            isFlipped = !isFlipped;
+    
+            if (png_handler) {
+                const result = await calculateProof(png_handler);
+    
+                proofHandler.proof = result.proof;
+                proofHandler.publicSignals = result.publicSignals;
+                proofHandler.verification = result.verification;
+                proofHandler.imageHash = generateImageHash(ctx.getImageData(0, 0, img.width, img.height)); 
+                displayProof();
+            }
         }
     }
 
-    // function flipImage() {
-    //     if (ctx) {
-    //         ctx.clearRect(0, 0, img.width, img.height);
-    //         ctx.translate(img.width, 0);
-    //         ctx.scale(-1, 1);            
-    //         drawImage(img);
-    //         ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset the transformation matrix
-    //         flipped = !flipped;
-    //         console.log("FLIPPED")
-    //     }
-    // }
-});
+    function displayProof() {
+        if (proofHandler.proof && proofHandler.publicSignals && proofHandler.verification) {
+            console.log("AFTER", proofHandler.proof)
+            const proofJsonString = JSON.stringify(proofHandler.proof);
+            proofOutputElement.textContent = proofJsonString;
+            }
+      }
+
+    function generateImageHash(imageData: ImageData): string {
+        const hash = createHash("sha256");
+        hash.update(new Uint8Array(imageData.data.buffer));
+        return hash.digest("hex");
+    }
+
+    }
+)
+
