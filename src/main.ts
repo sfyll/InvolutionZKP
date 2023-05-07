@@ -6,7 +6,8 @@ let proofHandler = {
     proof : null,
     publicSignals: {},
     verification: false,
-    imageHash: ""
+    imageHash: "",
+    proofOutputElement: ""
 }
 
 let png_handler: any;
@@ -51,6 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     inputImage.addEventListener("change", async (e) => {
+        e.stopImmediatePropagation()
         const file = (e.target as HTMLInputElement).files?.[0];
 
         if (file && file.type === "image/png") {
@@ -79,10 +81,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }});
 
     copyProofButton.addEventListener("click", (e) => {
+        e.stopImmediatePropagation()
         if (proofHandler.proof && proofHandler.publicSignals && proofHandler.verification) {
           const proofJsonString = JSON.stringify(proofHandler.proof);
           const publicInputsJsonString = JSON.stringify(proofHandler.publicSignals);
           proofOutputElement.value = `Proof:\n${proofJsonString}\n\nPublic Inputs:\n${publicInputsJsonString}`;
+          proofHandler.proofOutputElement = `Proof:\n${proofJsonString}\n\nPublic Inputs:\n${publicInputsJsonString}`;
     
           proofOutputElement.select();
           document.execCommand("copy");
@@ -90,7 +94,9 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
     verifyProofButton.addEventListener("click", (e) => {
-    if (proofHandler.proof && proofHandler.publicSignals && proofHandler.verification) {
+        e.stopImmediatePropagation()
+    if (proofHandler.proof && proofHandler.publicSignals && proofHandler.verification &&
+        proofHandler.proofOutputElement == proofOutputElement.value) {
         const currentImageHash = generateImageHash(ctx.getImageData(0, 0, img.width, img.height));
         if (currentImageHash === proofHandler.imageHash) {
             verificationResult.textContent = `Proof validation result is: ${proofHandler.verification}`
@@ -98,7 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
         verificationResult.textContent = "Error: The image has been changed. Please regenerate the proof.";
         }
     } else {
-        verificationResult.textContent = "Error: No proof available for verification.";
+        verificationResult.textContent = "Proof validation result is false";
     }
     });
   
