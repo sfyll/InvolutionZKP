@@ -6,8 +6,7 @@ let proofHandler = {
     proof : null,
     publicSignals: {},
     verification: false,
-    imageHash: "",
-    proofOutputElement: ""
+    imageHash: ""
 }
 
 let png_handler: any;
@@ -22,6 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const closeModal = document.querySelector(".close") as HTMLElement;
     const okButton = document.getElementById("okButton") as HTMLButtonElement;
     const openFilePicker = new Event("openFilePicker");
+    const spinner = document.getElementById("spinner") as HTMLElement;
 
     const flipButtonHandler = document.getElementById("flipButton") as HTMLButtonElement;
     const canvas = document.getElementById("imageCanvas") as HTMLCanvasElement;
@@ -74,38 +74,38 @@ document.addEventListener("DOMContentLoaded", () => {
   
     flipButtonHandler.addEventListener("click", async (e)  => {
         e.stopImmediatePropagation()
-        if (img) {        
+        if (img) {
             flipImage();
+            showSpinner();
             await populateProofHandler();
+            hideSpinner()
 
     }});
 
     copyProofButton.addEventListener("click", (e) => {
         e.stopImmediatePropagation()
         if (proofHandler.proof && proofHandler.publicSignals && proofHandler.verification) {
-          const proofJsonString = JSON.stringify(proofHandler.proof);
-          const publicInputsJsonString = JSON.stringify(proofHandler.publicSignals);
-          proofOutputElement.value = `Proof:\n${proofJsonString}\n\nPublic Inputs:\n${publicInputsJsonString}`;
-          proofHandler.proofOutputElement = `Proof:\n${proofJsonString}\n\nPublic Inputs:\n${publicInputsJsonString}`;
+            proofOutputElement.value = getStringProofOutput();
     
-          proofOutputElement.select();
-          document.execCommand("copy");
+            proofOutputElement.select();
+            document.execCommand("copy");
         }
       });
 
     verifyProofButton.addEventListener("click", (e) => {
         e.stopImmediatePropagation()
-    if (proofHandler.proof && proofHandler.publicSignals && proofHandler.verification &&
-        proofHandler.proofOutputElement == proofOutputElement.value) {
-        const currentImageHash = generateImageHash(ctx.getImageData(0, 0, img.width, img.height));
-        if (currentImageHash === proofHandler.imageHash) {
-            verificationResult.textContent = `Proof validation result is: ${proofHandler.verification}`
-        } else {
-        verificationResult.textContent = "Error: The image has been changed. Please regenerate the proof.";
+        if (proofHandler.proof && proofHandler.publicSignals && proofHandler.verification) {
+            if (proofOutputElement.value === '' || proofOutputElement.value === getStringProofOutput()) {
+                const currentImageHash = generateImageHash(ctx.getImageData(0, 0, img.width, img.height));
+                if (currentImageHash === proofHandler.imageHash) {
+                    verificationResult.value = `Proof validation result is: ${proofHandler.verification}`
+            }} 
+            else {
+            verificationResult.value = "Error: The image has been changed. Please regenerate the proof.";
         }
-    } else {
-        verificationResult.textContent = "Proof validation result is false";
-    }
+        } else {
+            verificationResult.value = "Proof validation result is false";
+        }
     });
   
 
@@ -133,20 +133,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function populateProofHandler() {
         if (png_handler) {
+            console.log("Calculating proof ")
             const result = await calculateProof(png_handler);
 
             proofHandler.proof = result.proof;
             proofHandler.publicSignals = result.publicSignals;
             proofHandler.verification = result.verification;
-            proofHandler.imageHash = generateImageHash(ctx.getImageData(0, 0, img.width, img.height)); 
+            proofHandler.imageHash = generateImageHash(ctx.getImageData(0, 0, img.width, img.height));
             displayProof();
         }
     }
 
     function displayProof() {
+        console.log(proofHandler.proof && proofHandler.publicSignals && proofHandler.verification)
         if (proofHandler.proof && proofHandler.publicSignals && proofHandler.verification) {
-            const proofJsonString = JSON.stringify(proofHandler.proof);
-            proofOutputElement.textContent = proofJsonString;
+            proofOutputElement.value = getStringProofOutput();
             }
       }
 
@@ -156,6 +157,18 @@ document.addEventListener("DOMContentLoaded", () => {
         return hash.digest("hex");
     }
 
+    function getStringProofOutput() {
+        const proofJsonString = JSON.stringify(proofHandler.proof);
+        const publicInputsJsonString = JSON.stringify(proofHandler.publicSignals);
+        return `Proof:\n${proofJsonString}\n\nPublic Inputs:\n${publicInputsJsonString}`;
     }
-)
 
+    function showSpinner() {
+        spinner.style.display = "block";
+    }
+
+    function hideSpinner() {
+        spinner.style.display = "none";
+    }
+
+});
