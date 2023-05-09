@@ -1,206 +1,222 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Zero-Knowledge Proof Example</title>
-    <link href="https://fonts.googleapis.com/css?family=Poppins:400,600&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css?family=Poppins:400,600&display=swap"
+      rel="stylesheet"
+    />
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        background-color: #f0f0f0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        gap: 2rem;
+        margin: 0;
+      }
+
+      h1 {
+        font-weight: 600;
+        margin-bottom: 1rem;
+        font-size: 2rem;
+      }
+
+      .client-side,
+      .server-side {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        flex: 0 0 40%;
+      }
+
+      input[type="file"] {
+        display: none;
+      }
+
+      .custom-button {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        background-color: #4caf50;
+        color: white;
+        cursor: pointer;
+        border-radius: 0.25rem;
+        font-size: 1rem;
+        font-weight: 600;
+        text-decoration: none;
+        margin-top: 1rem;
+      }
+
+      .custom-button:hover {
+        background-color: #45a049;
+      }
+
+      #imageCanvas {
+        max-width: 100%;
+        max-height: 400px;
+      }
+
+      #proofOutput {
+        background-color: white;
+        border: 1px solid #ccc;
+        border-radius: 0.25rem;
+        padding: 0.5rem;
+        font-weight: 600;
+        font-size: 0.8rem;
+        width: 100%;
+        height: 100px;
+        overflow: auto;
+        margin-top: 1rem;
+      }
+
+      #verificationResult {
+        background-color: white;
+        border: 1px solid #ccc;
+        border-radius: 0.25rem;
+        padding: 0.5rem;
+        font-weight: 600;
+        width: 60%;
+        margin: 1rem auto 0;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4);
+      }
+
+      .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+      }
+
+      .close:hover,
+      .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        color: #fff;
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        border-radius: 0.25rem;
+      }
+
+      .btn-primary:hover {
+        background-color: #0069d9;
+        border-color: #0062cc;
+      }
+
+      .proof-output-container {
+        position: relative;
+        margin-top: 1rem;
+      }
+
+      .spinner {
+        display: none;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border-top-color: #4caf50;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
         }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f0f0f0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            gap: 2rem;
-            margin: 0;
+        100% {
+          transform: rotate(360deg);
         }
-
-        h1 {
-            font-weight: 600;
-            margin-bottom: 1rem;
-            font-size: 2rem;
-        }
-
-        .client-side,
-        .server-side {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            flex: 0 0 40%;
-        }
-
-        input[type="file"] {
-            display: none;
-        }
-
-        .custom-button {
-            display: inline-block;
-            padding: 0.5rem 1rem;
-            background-color: #4CAF50;
-            color: white;
-            cursor: pointer;
-            border-radius: 0.25rem;
-            font-size: 1rem;
-            font-weight: 600;
-            text-decoration: none;
-            margin-top: 1rem;
-        }
-
-        .custom-button:hover {
-            background-color: #45a049;
-        }
-
-        #imageCanvas {
-            max-width: 100%;
-            max-height: 400px;
-        }
-
-        #proofOutput {
-            background-color: white;
-            border: 1px solid #ccc;
-            border-radius: 0.25rem;
-            padding: 0.5rem;
-            font-weight: 600;
-            font-size: 0.8rem;
-            width: 100%;
-            height: 100px;
-            overflow: auto;
-            margin-top: 1rem;
-        }
-
-        #verificationResult {
-            background-color: white;
-            border: 1px solid #ccc;
-            border-radius: 0.25rem;
-            padding: 0.5rem;
-            font-weight: 600;
-            width: 60%;
-            margin: 1rem auto 0;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.4);
-            }
-
-            .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            }
-
-            .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            }
-
-            .close:hover,
-            .close:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-            }
-
-            .btn-primary {
-            background-color: #007bff;
-            border-color: #007bff;
-            color: #fff;
-            padding: 0.5rem 1rem;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            border-radius: 0.25rem;
-            }
-
-            .btn-primary:hover {
-            background-color: #0069d9;
-            border-color: #0062cc;
-            }
-
-        .proof-output-container {
-            position: relative;
-            margin-top: 1rem;
-        }
-
-        .spinner {
-            display: none;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border-top-color: #4CAF50;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes 
-        spin {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
-        }
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <div class="client-side">
-        <h1>Client Side</h1>
-        <label for="inputImage" class="custom-button">Choose Image</label>
-        <input type="file" id="inputImage" accept="image/png">
-        <button id="flipButton" class="custom-button">Flip Image</button>
-        <div class="proof-output-container">
-            <textarea id="proofOutput"></textarea>
-            <div class="spinner" id="spinner"></div>
-        </div>
-        <button id="copyProof" class="custom-button">Copy Proof & Public Inputs</button>
-        <button id="verifyProof" class="custom-button">Verify</button>
-        <textarea id="verificationResult"></textarea>
+      <h1>Client Side</h1>
+      <label for="inputImage" class="custom-button">Choose Image</label>
+      <input type="file" id="inputImage" accept="image/png" />
+      <button id="flipButton" class="custom-button">Flip Image</button>
+      <div class="proof-output-container">
+        <textarea id="proofOutput"></textarea>
+        <div class="spinner" id="spinner"></div>
+      </div>
+      <button id="copyProof" class="custom-button">
+        Copy Proof & Public Inputs
+      </button>
+      <button id="verifyProof" class="custom-button">Verify</button>
+      <textarea id="verificationResult"></textarea>
     </div>
     <div class="server-side">
-        <h1>Server Side</h1>
-        <canvas id="imageCanvas"></canvas>
+      <h1>Server Side</h1>
+      <canvas id="imageCanvas"></canvas>
     </div>
     <div id="warningModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <p>
-            Circuits are hungry animals. For the sake of your machine, we've bounded the size of handled JPEGs. You can choose any JPEGS of at most 50 by 50 from <a href="https://icons8.com/icons/set/50x50-pixels" target="_blank" rel="noopener noreferrer"><strong>here</strong></a>. If you're curious about what it takes to run large circuits, read <a href="https://hackmd.io/V-7Aal05Tiy-ozmzTGBYPA?view" target="_blank" rel="noopener noreferrer"><strong>this</strong></a>.
-            </p>
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <p>
+          Circuits are hungry animals. For the sake of your machine, we've
+          bounded the size of handled JPEGs. You can choose any JPEGS of at most
+          50 by 50 from
+          <a
+            href="https://icons8.com/icons/set/50x50-pixels"
+            target="_blank"
+            rel="noopener noreferrer"
+            ><strong>here</strong></a
+          >. If you're curious about what it takes to run large circuits, read
+          <a
+            href="https://hackmd.io/V-7Aal05Tiy-ozmzTGBYPA?view"
+            target="_blank"
+            rel="noopener noreferrer"
+            ><strong>this</strong></a
+          >.
+        </p>
         <button id="okButton" class="btn btn-primary">OK</button>
-    </div>
+      </div>
     </div>
     <script src="main.js"></script>
-</body>
-
+  </body>
 </html>
