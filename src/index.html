@@ -142,9 +142,17 @@
             border-color: #0062cc;
             }
 
+        .proof-output-container {
+            position: relative;
+            margin-top: 1rem;
+        }
+
         .spinner {
             display: none;
-            margin: 0 auto;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             border: 4px solid rgba(0, 0, 0, 0.1);
             width: 36px;
             height: 36px;
@@ -171,11 +179,13 @@
         <label for="inputImage" class="custom-button">Choose Image</label>
         <input type="file" id="inputImage" accept="image/png">
         <button id="flipButton" class="custom-button">Flip Image</button>
-        <textarea id="proofOutput"></textarea>
+        <div class="proof-output-container">
+            <textarea id="proofOutput"></textarea>
+            <div class="spinner" id="spinner"></div>
+        </div>
         <button id="copyProof" class="custom-button">Copy Proof & Public Inputs</button>
         <button id="verifyProof" class="custom-button">Verify</button>
         <textarea id="verificationResult"></textarea>
-        <div class="spinner" id="spinner"></div>
     </div>
     <div class="server-side">
         <h1>Server Side</h1>

@@ -149,6 +149,12 @@ document.addEventListener("DOMContentLoaded", () => {
             }
       }
 
+    function hideProof() {
+        if (proofHandler.proof && proofHandler.publicSignals && proofHandler.verification) {
+            proofOutputElement.value = "";
+            }
+    }
+
     function generateImageHash(imageData: ImageData): string {
         const hash = createHash("sha256");
         hash.update(new Uint8Array(imageData.data.buffer));
@@ -162,10 +168,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function showSpinner() {
+        hideProof();
         spinner.style.display = "block";
+
     }
 
     function hideSpinner() {
+        displayProof();
         spinner.style.display = "none";
     }
 
