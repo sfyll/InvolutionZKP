@@ -133,7 +133,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function populateProofHandler() {
         if (png_handler) {
-            console.log("Calculating proof ")
             const result = await calculateProof(png_handler);
 
             proofHandler.proof = result.proof;
@@ -145,7 +144,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function displayProof() {
-        console.log(proofHandler.proof && proofHandler.publicSignals && proofHandler.verification)
         if (proofHandler.proof && proofHandler.publicSignals && proofHandler.verification) {
             proofOutputElement.value = getStringProofOutput();
             }
