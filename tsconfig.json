@@ -6,6 +6,7 @@
     "lib": ["DOM", "ES2015"],
     "esModuleInterop": true,
     "outDir": "build",
-    "typeRoots": ["./node_modules/@types", "./types"]
-  }
+    "typeRoots": ["./node_modules/@types", "./types"],
+  },
+  "exclude": ["./test/"]
 }

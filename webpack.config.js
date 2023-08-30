@@ -4,11 +4,11 @@ const path = require("path");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 module.exports = {
-  mode: "development",
+  mode: "production",
   entry: "./src/main.ts",
   output: {
     filename: "main.js",
-    path: path.resolve(__dirname, "build/src/")
+    path: path.resolve(__dirname, "build/")
   },
   module: {
     rules: [
@@ -44,12 +44,13 @@ module.exports = {
       process: "process/browser"
     }),
     new CopyWebpackPlugin({
-      patterns: [{ from: "./src/public", to: "./build/src/public" }]
+      patterns: [{ from: "./src/public", to: "./public" }]
     })
   ],
   devServer: {
     static: {
-      directory: path.join(__dirname, "build/src/")
-    }
-  }
+      directory: path.join(__dirname, "build/")
+    },
+  },
+  performance: { hints: false } // disable performance hints
 };

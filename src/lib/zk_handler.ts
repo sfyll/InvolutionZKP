@@ -4,7 +4,7 @@ import { getRootProjectDirectory, getVerificationKey } from "./utils";
 
 export const calculateProof = async function (
   imageData: PngHandler,
-  directory_extension = "build/src/public/"
+  directory_extension = "./public/"
 ) {
   const directory = getRootProjectDirectory() + directory_extension;
 

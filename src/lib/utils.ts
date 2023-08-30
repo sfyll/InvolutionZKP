@@ -33,7 +33,7 @@ export const consoleErrorEnable = (
 };
 
 export const getVerificationKey = async (
-  directory_extension = "build/src/public/"
+  directory_extension = "./public/"
 ) => {
   return await fetch(
     getRootProjectDirectory() + directory_extension + "verification_key.json"
